@@ -183,11 +183,13 @@ public class NUSTitle {
 					InputStream bis = new ByteArrayInputStream(metaxml);
 					NUSTitleInformation nusinfo = readMeta(bis);
 					//String folder = nusinfo.getLongnameEN().replaceAll("[^\\x20-\\x7E]", "") + " [" + nusinfo.getID6() + "]";
-					String folder = nusinfo.getLongnameEN() + " [" + nusinfo.getID6() + "]";
+					String titleName = nusinfo.getLongnameEN();
+					String folder = titleName + " [" + nusinfo.getID6() + "]";
 					String subfolder = "";
 					if(tmd.isUpdate()) subfolder = "/" + "updates" + "/" + "v" + tmd.titleVersion;				
 					setTargetPath(folder + subfolder);
 					setLongNameFolder(folder);					
+					Logger.log("Title Name: " + titleName);
 				}
 			}
 						

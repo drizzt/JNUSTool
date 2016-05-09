@@ -49,12 +49,16 @@ public class Starter {
 			
 			if(titleID != 0){
 				boolean dl_encrypted = false;
+				boolean use_gui = !java.awt.GraphicsEnvironment.isHeadless();
 				for(int i =0; i< args.length;i++){
 					if(args[i].startsWith("v")){
 						version = Integer.parseInt((args[i].substring(1)));
 					}
 					if(args[i].equals("-dlEncrypted")){
 						dl_encrypted = true;						
+					}
+					if(args[i].equals("-noGUI")){
+						use_gui = false;
 					}
 				}
 				if(dl_encrypted){
@@ -65,22 +69,34 @@ public class Starter {
 					}	
 					System.exit(0);
 				}
-				NUSGUI m = new NUSGUI(new NUSTitle(titleID,version, key));
-		        m.setVisible(true);			
+				if(use_gui){
+					NUSGUI m = new NUSGUI(new NUSTitle(titleID,version, key));
+					m.setVisible(true);
+				}else{
+					NUSTitle title = new NUSTitle(titleID,version, key);
+					title.decryptFEntries(title.getFst().getFileEntries(),null);
+					System.exit(0);
+				}
 			}
 		}else{
-			for(final NUSTitleInformation nus : getTitleID()){
-				
-				final long tID = nus.getTitleID();
-				new Thread(new Runnable() {
+			if(java.awt.GraphicsEnvironment.isHeadless()){
+				Logger.log("Usage: java -jar JNUSTool.jar TITLEID [NUSKEY] [version] [-dlEncrypted]");
+				Logger.log("");
+				Logger.log("See https://gbatemp.net/threads/413179 for more informations.");
+			}else{
+				for(final NUSTitleInformation nus : getTitleID()){
 					
-					@Override
-					public void run() {
-						NUSGUI m = new NUSGUI(new NUSTitle(tID,nus.getSelectedVersion(), null));
-				        m.setVisible(true);						
-					}
-				}).start();;
-			}			
+					final long tID = nus.getTitleID();
+					new Thread(new Runnable() {
+
+						@Override
+						public void run() {
+							NUSGUI m = new NUSGUI(new NUSTitle(tID,nus.getSelectedVersion(), null));
+						m.setVisible(true);
+						}
+					}).start();;
+				}
+			}
 		}
 	}
 	
