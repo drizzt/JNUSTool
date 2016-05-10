@@ -27,7 +27,7 @@ public class NUSGUI extends JFrame {
 
     private static final long serialVersionUID = 4648172894076113183L;
     public static JTextArea output = new JTextArea(1,10);
-    public NUSGUI(NUSTitle nus) {
+    public NUSGUI(final NUSTitle nus) {
         super();
         this.setResizable(false);
         setSize(600, 768);
@@ -57,11 +57,11 @@ public class NUSGUI extends JFrame {
         JButton btnNewButton = new JButton("Download");
         panel_1.add(btnNewButton);
         
-        JProgressBar progressBar = new JProgressBar();
+        final JProgressBar progressBar = new JProgressBar();
         panel_1.add(progressBar);
         
         progressBar.setValue(0);
-        Progress progress = new Progress();
+        final Progress progress = new Progress();
         progress.setProgressUpdateListener(new ProgressUpdateListener() {
 			
 			@Override
