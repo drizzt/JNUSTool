@@ -49,6 +49,11 @@ public class NUSTitleInformation implements Comparable<NUSTitleInformation>, Ser
 		this(titleID, longnameEN, ID6, product_code,content_platform,company_code,region,new String[1]);
 	}
 
+	public NUSTitleInformation(long titleID, String longnameEN, String ID6, String product_code,String content_platform,String company_code,int region,byte[] key) {
+		this(titleID, longnameEN, ID6, product_code,content_platform,company_code,region,new String[1]);
+		setKey(key);
+	}
+
 	public Region getRegionAsRegion() {		
 		switch (region) {
         	case 1:  return Region.JAP;                 
@@ -162,7 +167,8 @@ public class NUSTitleInformation implements Comparable<NUSTitleInformation>, Ser
 		String result = "latest";
 		if(versions != null && !versions.isEmpty()){
 			result = versions.get(versions.size()-1) + "";
-		}
+		}else
+			result = "full";
 		return result;
 	}
 
@@ -176,8 +182,9 @@ public class NUSTitleInformation implements Comparable<NUSTitleInformation>, Ser
 			for(Integer v: versions){
 				list.add(v + "");
 			}			
-		}
-		list.add("latest");
+			list.add("latest");
+		}else
+			list.add("full");
 		return list;
 	}
 

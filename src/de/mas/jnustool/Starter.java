@@ -22,7 +22,7 @@ import de.mas.jnustool.util.Util;
 
 public class Starter {
 
-	private static String updateCSVPath;
+	private static String updateCSVPath, fullCSVPath;
 	
 	public static void main(String[] args) {
 		
@@ -91,7 +91,7 @@ public class Starter {
 
 						@Override
 						public void run() {
-							NUSGUI m = new NUSGUI(new NUSTitle(tID,nus.getSelectedVersion(), null));
+							NUSGUI m = new NUSGUI(new NUSTitle(tID,nus.getSelectedVersion(), Util.ByteArrayToString(nus.getKey())));
 						m.setVisible(true);
 						}
 					}).start();;
@@ -100,10 +100,12 @@ public class Starter {
 		}
 	}
 	
-
-
 	private static List<NUSTitleInformation> getTitleID() {
-		List<NUSTitleInformation> updatelist = readUpdateCSV();
+		List<NUSTitleInformation> updatelist, fulllist;
+		updatelist = readUpdateCSV();
+		fulllist = readFullTSV();
+		if(fulllist != null)
+			updatelist.addAll(fulllist);
 		List<NUSTitleInformation> result = null;
 		if(updatelist != null){
 			result = new ArrayList<>();
@@ -164,6 +166,61 @@ public class Starter {
 		}
 		return list;		
 	}
+	@SuppressWarnings("resource")
+	private static List<NUSTitleInformation> readFullTSV() {
+		if(fullCSVPath == null) return null;
+		BufferedReader in = null;
+		List<NUSTitleInformation> list = new ArrayList<>();
+		try {
+			in = new BufferedReader(new InputStreamReader(new FileInputStream(new File(fullCSVPath)), "UTF-8"));
+			String line;
+			in.readLine();
+		    while((line = in.readLine()) != null){
+		    	String[] infos = line.split("\t", Integer.MAX_VALUE);
+		    	if(infos.length != 11 && infos.length != 12) {
+		    		Logger.messageBox("Fullist is broken!");
+		    		Logger.log("Fulllist is broken!");
+		    		return null;
+		    	}
+		    	long titleID = Util.StringToLong(infos[9]);
+			if (titleID == 0)
+				continue;
+		    	int region = 0;
+			switch(infos[1]) {
+				case "JAP":
+					region = 1;
+					break;
+				case "USA":
+					region = 2;
+					break;
+				case "EUR":
+					region = 4;
+					break;
+			}
+		    	String  content_platform = "WUP";
+		    	String  company_code = ""; //infos[3];
+		    	String  product_code = ""; //infos[4];
+		    	String  ID6 = infos[7];
+		    	String  longnameEN = infos[0];
+			if (infos[6] == "")
+				continue;
+			byte[] key = Util.hexStringToByteArray(infos[6]);
+		    	NUSTitleInformation info = new NUSTitleInformation(titleID, longnameEN, ID6, product_code, content_platform, company_code, region, key);
+		    	
+		    	list.add(info);
+		    }
+		    in.close();
+		} catch (IOException | NumberFormatException e) {
+			try {
+				if(in != null)in.close();
+			} catch (IOException e1) {
+			}
+			Logger.messageBox("Fulllist is broken or missing");
+			Logger.log("Fulllist is broken!");
+			return null;
+		}
+		return list;		
+	}
 
 
 
@@ -178,6 +235,7 @@ public class Starter {
 		}
 		Util.commonKey =  Util.hexStringToByteArray(commonkey);
 		updateCSVPath =  in.readLine();
+		fullCSVPath =  in.readLine();
 		in.close();
 		
 	}
